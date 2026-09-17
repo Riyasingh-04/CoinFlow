@@ -55,3 +55,55 @@ export function getBudgetProgress(
     status,
   };
 }
+
+export interface DailyLimitStatus {
+  todayLimit: number;
+  spentToday: number;
+  remainingToday: number;
+  status: 'on-track' | 'over-today' | 'under-budget';
+}
+
+export function getAdjustedDailyLimit(
+  monthlyBudget: number,
+  transactions: Transaction[]
+): DailyLimitStatus {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const dayOfMonth = now.getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const monthTransactions = getCurrentMonthTransactions(transactions).filter(
+    (t) => t.type === 'expense'
+  );
+
+  const spentSoFar = monthTransactions
+    .filter((t) => {
+      const day = new Date(t.date).getDate();
+      return day < dayOfMonth;
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const spentToday = monthTransactions
+    .filter((t) => {
+      const day = new Date(t.date).getDate();
+      return day === dayOfMonth;
+    })
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const remainingDays = daysInMonth - dayOfMonth + 1;
+  const remainingBudget = monthlyBudget - spentSoFar;
+  const todayLimit = remainingDays > 0 ? remainingBudget / remainingDays : 0;
+  const remainingToday = todayLimit - spentToday;
+
+  let status: 'on-track' | 'over-today' | 'under-budget' = 'on-track';
+  if (remainingToday < 0) status = 'over-today';
+  else if (spentToday < todayLimit * 0.5) status = 'under-budget';
+
+  return {
+    todayLimit,
+    spentToday,
+    remainingToday,
+    status,
+  };
+}

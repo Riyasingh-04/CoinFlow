@@ -2,33 +2,154 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Expense Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CoinFlow</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="app">
-      <h1>Expense Tracker</h1>
-      <p id="balance">Balance: $0.00</p>
+      <header id="topbar">
+        <div class="logo-group">
+          <svg viewBox="0 0 100 100" width="24" height="24" fill="none">
+            <defs>
+              <linearGradient id="coinflow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#8B5CF6" />
+                <stop offset="100%" stop-color="#06B6D4" />
+              </linearGradient>
+            </defs>
+            <path d="M 68 28 A 32 32 0 1 0 68 72" stroke="url(#coinflow-grad)" stroke-width="10" stroke-linecap="round" />
+            <line x1="36" y1="12" x2="36" y2="88" stroke="url(#coinflow-grad)" stroke-width="6" stroke-linecap="round" opacity="0.95" />
+            <circle cx="68" cy="28" r="4" fill="#06B6D4" />
+          </svg>
+          <span class="logo-text">CoinFlow</span>
+        </div>
 
-      <form id="transaction-form">
-        <input type="text" id="description" placeholder="Description" required />
-        <input type="number" id="amount" placeholder="Amount" step="0.01" required />
-        <select id="type">
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
-        <select id="category"></select>
-        <button type="submit">Add</button>
-      </form>
-      <div id="budget-section">
-        <h2>Monthly Budgets</h2>
-        <div id="budget-list"></div>
+        <div id="search-box">
+          <input type="text" id="global-search" placeholder="Search transactions..." />
+        </div>
+
+        <div class="topbar-right">
+          <button id="theme-toggle">🌙</button>
+        </div>
+      </header>
+
+      <div id="layout">
+        <nav id="sidebar">
+          <button class="nav-item active" data-page="dashboard">
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-item" data-page="transactions">
+            <span>Transactions</span>
+          </button>
+          <button class="nav-item" data-page="calendar">
+            <span>Calendar</span>
+          </button>
+          <button class="nav-item" data-page="budgets">
+            <span>Budgets</span>
+          </button>
+        </nav>
+
+        <main id="main-content">
+          <section id="page-dashboard" class="page active">
+            <div id="dashboard-grid">
+              <div id="dashboard-left">
+                <div id="balance-card">
+                  <p id="balance">Balance: $0.00</p>
+                </div>
+                <form id="transaction-form">
+                  <input type="text" id="description" placeholder="Description" required />
+                  <input type="number" id="amount" placeholder="Amount" step="0.01" required />
+                  <select id="type">
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                  <select id="category"></select>
+                  <button type="submit">Add</button>
+                </form>
+                <ul id="transaction-list"></ul>
+              </div>
+              <div id="dashboard-right">
+                <div id="chart-section">
+                  <h2>Spending Breakdown</h2>
+                  <canvas id="spending-chart" width="220" height="220"></canvas>
+                </div>
+                <div id="budget-section">
+                  <h2>Monthly Budgets</h2>
+                  <div id="budget-list"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="page-transactions" class="page">
+  <div class="page-header">
+    <h2>All Transactions</h2>
+  </div>
+
+  <div id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="income">Income</button>
+    <button class="filter-btn" data-filter="expense">Expense</button>
+  </div>
+
+  <div id="transactions-table-wrapper">
+    <table id="transactions-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="transactions-table-body"></tbody>
+    </table>
+  </div>
+</section>
+
+          <section id="page-calendar" class="page">
+  <div id="calendar-header">
+    <button id="prev-month">‹</button>
+    <span id="calendar-month-label"></span>
+    <button id="next-month">›</button>
+  </div>
+
+  <div id="calendar-weekdays">
+    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+  </div>
+
+  <div id="calendar-grid"></div>
+
+  <div id="calendar-detail">
+    <p class="placeholder-text">Click a day to see its transactions.</p>
+  </div>
+</section>
+
+
+          <section id="page-budgets" class="page">
+  <div class="page-header">
+    <h2>Budgets</h2>
+  </div>
+
+  <div id="daily-limit-card">
+    <p id="daily-limit-label">Today's adjusted limit</p>
+    <p id="daily-limit-amount">$0.00</p>
+    <p id="daily-limit-status"></p>
+  </div>
+
+  <div id="budgets-page-grid"></div>
+</section>
+        </main>
       </div>
-      <div id="chart-section">
-        <h2>Spending Breakdown</h2>
-        <canvas id="spending-chart" width="300" height="300"></canvas>
-      </div>
-      <ul id="transaction-list"></ul>
     </div>
+    <div id="toast-container"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
